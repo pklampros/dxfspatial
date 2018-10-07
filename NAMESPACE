@@ -1,0 +1,10 @@
+exportPattern("^[[:alpha:]]+")
+
+useDynLib(dxfspatial)
+
+import(sp)
+
+export(getDXFData)
+export(processDXF)
+
+
