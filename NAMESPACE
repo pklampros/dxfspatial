@@ -2,6 +2,7 @@ exportPattern("^[[:alpha:]]+")
 
 useDynLib(dxfspatial)
 
+importFrom(Rcpp, evalCpp)
 import(sp)
 
 export(getDXFData)

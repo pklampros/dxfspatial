@@ -1,7 +1,6 @@
 context("Gallery tests")
 
 library(dxfspatial)
-library(Rcpp)
 
 dataToDataFrame = function(data, colnames, coltypes = c()) {
     if(length(coltypes) == 0) coltypes = rep("character", length(colnames))
