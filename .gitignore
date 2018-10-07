@@ -1,7 +1,5 @@
 *.so
 *.o
 *.dll
-R/RcppExports.R
-src/RcppExports.cpp
 .Rproj.user
 .Rhistory
