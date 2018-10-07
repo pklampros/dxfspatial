@@ -1,3 +1,4 @@
+library(Rcpp)
 library(sp);
 setClass("dxfData", slots = c(
     lines="SpatialLinesDataFrame",
