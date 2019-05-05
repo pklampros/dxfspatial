@@ -158,20 +158,23 @@ public:
                         if(stringutils::startsWith(currtext, formattedLineLayerIdentifier)) {
                             layers.push_back(currtext.substr(formattedLineLayerIdentifier.length(), currtext.length()));
                             layerType.push_back(lineLayerIdentifier);
+                            layerColour.push_back(colour);
                         }
                         if(stringutils::startsWith(currtext, formattedPolyLayerIdentifier)) {
                             layers.push_back(currtext.substr(formattedPolyLayerIdentifier.length(), currtext.length()));
                             layerType.push_back(polyLayerIdentifier);
+                            layerColour.push_back(colour);
                         }
                         if(stringutils::startsWith(currtext, formattedTextLayerIdentifier)) {
                             layers.push_back(currtext.substr(formattedTextLayerIdentifier.length(), currtext.length()));
                             layerType.push_back(textLayerIdentifier);
+                            layerColour.push_back(colour);
                         }
                         if(stringutils::startsWith(currtext, formattedPointLayerIdentifier)) {
                             layers.push_back(currtext.substr(formattedPointLayerIdentifier.length(), currtext.length()));
                             layerType.push_back(pointLayerIdentifier);
+                            layerColour.push_back(colour);
                         }
-                        layerColour.push_back(colour);
                     }
                     islayer = false;
                 } else if(isblock && (islwpoly || ispolyfinished)) {
