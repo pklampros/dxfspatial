@@ -8,7 +8,7 @@ Description: This package extracts spatial information (Spatial dataframes) from
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp, sp
+LinkingTo: Rcpp, sp, maptools, raster
 Imports: Rcpp
-Depends: sp
+Depends: sp, maptools, raster
 Suggests: testthat
