@@ -1,3 +1,19 @@
+% Copyright 2018-2019 Petros Koutsolampros
+% This file is part of dxfspatial.
+%
+% dxfspatial is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% dxfspatial is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with dxfspatial.  If not, see <https://www.gnu.org/licenses/>.
+
 \name{processDXF}
 \alias{processDXF}
 \title{
@@ -9,7 +25,6 @@ Reads a DXF file and extracts spatial layers such as polygons, lines, points and
 \usage{
 processDXF(filepath, scale = 1, prefix)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{filepath}{
     The location of the DXF file
