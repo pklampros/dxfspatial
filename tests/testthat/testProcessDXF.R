@@ -18,17 +18,17 @@ dataToDataFrame = function(data, colnames, coltypes = c()) {
 
 test_that("Load plan from gallery", {
     galleryPlan = processDXF("gallery.dxf", 1, "@_");
-    expect_equal(nrow(galleryPlan@lines), 562)
-    expect_equal(nrow(galleryPlan@polys), 2)
-    expect_equal(nrow(galleryPlan@texts), 3)
-    expect_equal(nrow(galleryPlan@points), 8)
+    expect_equal(nrow(galleryPlan$lines), 562)
+    expect_equal(nrow(galleryPlan$polys), 2)
+    expect_equal(nrow(galleryPlan$texts), 3)
+    expect_equal(nrow(galleryPlan$points), 8)
 
     expectedBlocks = dataToDataFrame(data = c(
         "floor1", "7"),
         colnames=c("name","colour"),
         coltypes=c("character", "factor"));
 
-    expect_equal(galleryPlan@blocks, expectedBlocks)
+    expect_equal(galleryPlan$blocks, expectedBlocks)
 
     expectedLayers = dataToDataFrame(data = c(
         "acc-gallery1", "poly", "3",
@@ -41,6 +41,6 @@ test_that("Load plan from gallery", {
         colnames=c("name","type","colour"),
         coltypes=c("character", "factor", "factor"));
 
-    expect_equal(galleryPlan@layers, expectedLayers)
+    expect_equal(galleryPlan$layers, expectedLayers)
 })
 

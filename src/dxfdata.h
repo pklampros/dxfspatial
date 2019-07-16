@@ -70,7 +70,7 @@ public:
                            std::vector<std::vector<double> > &coordsToBeOffset) {
         for(size_t i = 0; i < keys.size(); i++) {
             if (offsets.count(keys[i]) == 0 || offsets[keys[i]].size() == 0) {
-                std::cerr << keys[i] << " block found but not inserted" << std::endl;
+                Rcpp::Rcerr << keys[i] << " block found but not inserted" << std::endl;
                 continue;
             }
             std::vector<double> &offsetCoords = offsets[keys[i]];
@@ -87,7 +87,7 @@ public:
                            std::vector<double> &coordsToBeOffset) {
         for(size_t i = 0; i < keys.size(); i++) {
             if (offsets.count(keys[i]) == 0 || offsets[keys[i]].size() == 0) {
-                std::cerr << keys[i] << " block found but not inserted" << std::endl;
+                Rcpp::Rcerr << keys[i] << " block found but not inserted" << std::endl;
                 continue;
             }
             std::vector<double> &offsetCoords = offsets[keys[i]];

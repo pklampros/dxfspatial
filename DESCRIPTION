@@ -4,11 +4,11 @@ Title: Extract spatial information from structured dxf files
 Version: 0.1.0
 Author: Petros Koutsolampros
 Maintainer: Petros Koutsolampros <dxfspatial@orange-vertex.net>
-Description: This package extracts spatial information (Spatial dataframes) from structured dxf files
-License: GPL-3
+Description: This package extracts spatial information (spatial dataframes) from structured dxf files.
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp, sp, maptools, raster
+LinkingTo: Rcpp, sp
 Imports: Rcpp
-Depends: sp, maptools, raster
+Depends: methods, sp, raster, rgeos, maptools
 Suggests: testthat

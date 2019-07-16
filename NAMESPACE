@@ -1,11 +1,11 @@
-exportPattern("^[[:alpha:]]+")
-
 useDynLib(dxfspatial)
 
-importFrom(Rcpp, evalCpp)
-import(sp)
+importFrom("methods", "is", "slot")
+importFrom("Rcpp", "evalCpp")
+import("sp")
+import("rgeos")
+import("raster")
+import("maptools")
 
-export(getDXFData)
-export(processDXF)
-
-
+export("processDXF")
+export("cleanPolygons")
