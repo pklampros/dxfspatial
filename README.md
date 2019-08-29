@@ -19,7 +19,7 @@ The package will understand a layer called `@_poly-gallery` as a layer with poly
 Points and texts are both created as SpatialPointsDataFrame, the texts with an additional column.  
 To separate the different floors, put each floor in a different block, named in a similar fashion and with the same prefix i.e. "@_floor1".  
 Even if only one floor is in the floor plan it needs to be placed in a block and it given a name.  
-The command to read a proparly structured dxf is thus:  
+The command to read a properly structured dxf is thus:  
 
 ```{r}
 dxf = processDXF(<filename>, <scale>, <prefix>)
