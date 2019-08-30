@@ -362,12 +362,19 @@ public:
                 } else if(value == "LAYER") {
                     islayer = true;
                 }
-            } else if (islwpoly || ismtext || isline || ispoint || islayer || (!isblock && isinsert) || (ispoly && isvertex)) {
-                if(key == 10 || (isline && key == 11)) {
+            } else if (islwpoly || ismtext || isline || ispoint || islayer || (!isblock && isinsert) || ispoly) {
+                if((key == 10 || (isline && key == 11)) && !(ispoly && !isvertex)) {
+                    // Polylines also have coordinates in the entity that starts the sequance (POLYLINE)
+                    // which should not be counted among the coordinates (unless we are looking at a vertex)
                     coordsX.push_back(std::stod(value)*scale);
-                } else if (key == 20 || (isline && key == 21)) {
+                } else if ((key == 20 || (isline && key == 21)) && !(ispoly && !isvertex)) {
                     coordsY.push_back(std::stod(value)*scale);
-                } else if(key == 8) {
+                } else if(key == 8 && !(ispoly && isvertex)) {
+                    // Sometimes it happens that a vertex is in a polyline but has a different
+                    // layer than the polyline itself. It's not supposed to happen but obviously
+                    // some apps are really bad at writing DXFs...
+                    // Without this check here the whole polyline will end up in the layer of the
+                    // last vertex and not of the polygon
                     layer = value;
                 } else if(key == 62) {
                     colour = value;
