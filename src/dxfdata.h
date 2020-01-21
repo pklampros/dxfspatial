@@ -363,6 +363,7 @@ public:
                             endangle += 360;
                         }
                         int arcSides = (startangle == endangle) ? circleSides : (int(endangle - startangle) * circleSides / 360);
+                        if(arcSides == 0) arcSides = 1;
                         startangle = 2 * PI * startangle / 360;
                         endangle = 2 * PI * endangle / 360;
                         double angle = (endangle - startangle) / arcSides;
