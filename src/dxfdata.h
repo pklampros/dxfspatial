@@ -117,6 +117,11 @@ public:
 
         int circleSides = 32;
         double radius, startangle, endangle;
+
+        // at the moment the way this is used is to flip the lwpolys, circles and arcs by multiplying
+        // extrudeZ with them though there is certainly a better way.
+        double extrudeX, extrudeY, extrudeZ;
+
         std::vector<double> coordsX;
         std::vector<double> coordsY;
         std::string layer = defaultLayerName;
@@ -197,7 +202,7 @@ public:
                                 polyColour.push_back(colour);
                                 std::vector<double> coords;
                                 for(size_t i = 0; i < coordsX.size(); i++) {
-                                    coords.push_back(coordsX[i]);
+                                    coords.push_back(extrudeZ * coordsX[i]);
                                     coords.push_back(coordsY[i]);
                                 }
                                 polys.push_back(coords);
@@ -211,9 +216,9 @@ public:
 
                              for(size_t i = 0; i < coordsX.size()-1; i++) {
                                  std::vector<double> coords;
-                                 coords.push_back(coordsX[i]);
+                                 coords.push_back(extrudeZ * coordsX[i]);
                                  coords.push_back(coordsY[i]);
-                                 coords.push_back(coordsX[i+1]);
+                                 coords.push_back(extrudeZ * coordsX[i+1]);
                                  coords.push_back(coordsY[i+1]);
                                  lines.push_back(coords);
                                  lineLayer.push_back(layername);
@@ -224,9 +229,9 @@ public:
                              }
                              if(polyclosed) {
                                  std::vector<double> coords;
-                                 coords.push_back(coordsX[coordsX.size()-1]);
+                                 coords.push_back(extrudeZ * coordsX[coordsX.size()-1]);
                                  coords.push_back(coordsY[coordsX.size()-1]);
-                                 coords.push_back(coordsX[0]);
+                                 coords.push_back(extrudeZ * coordsX[0]);
                                  coords.push_back(coordsY[0]);
                                  lines.push_back(coords);
                                  lineLayer.push_back(layername);
@@ -244,6 +249,9 @@ public:
                     polyclosed = false;
                     layer = defaultLayerName;
                     colour = defaultColour;
+                    extrudeX = 1;
+                    extrudeY = 1;
+                    extrudeZ = 1;
                 }
                 if(isblock && ismtext) {
                     if(stringutils::startsWith(layer, formattedTextLayerIdentifier)
@@ -322,9 +330,9 @@ public:
                         double angle = 2 * PI / circleSides;
                         for(int i = 0; i < circleSides; i++) {
                             std::vector<double> coords;
-                            coords.push_back(coordsX[0] + radius * cos(i * angle));
+                            coords.push_back(extrudeZ * (coordsX[0] + radius * cos(i * angle)));
                             coords.push_back(coordsY[0] + radius * sin(i * angle));
-                            coords.push_back(coordsX[0] + radius * cos((i + 1) * angle));
+                            coords.push_back(extrudeZ * (coordsX[0] + radius * cos((i + 1) * angle)));
                             coords.push_back(coordsY[0] + radius * sin((i + 1) * angle));
                             lines.push_back(coords);
                             lineLayer.push_back(layername);
@@ -339,6 +347,9 @@ public:
                     iscircle = false;
                     layer = defaultLayerName;
                     colour = defaultColour;
+                    extrudeX = 1;
+                    extrudeY = 1;
+                    extrudeZ = 1;
                 }
 
                 if(isblock && isarc) {
@@ -357,9 +368,9 @@ public:
                         double angle = (endangle - startangle) / arcSides;
                         for(int i = 0; i < arcSides; i++) {
                             std::vector<double> coords;
-                            coords.push_back(coordsX[0] + radius * cos(startangle + i * angle));
+                            coords.push_back(extrudeZ * (coordsX[0] + radius * cos(startangle + i * angle)));
                             coords.push_back(coordsY[0] + radius * sin(startangle + i * angle));
-                            coords.push_back(coordsX[0] + radius * cos(startangle + (i + 1) * angle));
+                            coords.push_back(extrudeZ * (coordsX[0] + radius * cos(startangle + (i + 1) * angle)));
                             coords.push_back(coordsY[0] + radius * sin(startangle + (i + 1) * angle));
                             lines.push_back(coords);
                             lineLayer.push_back(layername);
@@ -371,9 +382,12 @@ public:
                         coordsX.clear();
                         coordsY.clear();
                     }
-                    iscircle = false;
+                    isarc = false;
                     layer = defaultLayerName;
                     colour = defaultColour;
+                    extrudeX = 1;
+                    extrudeY = 1;
+                    extrudeZ = 1;
                 }
                 if(!isblock && isinsert && stringutils::startsWith(currtext, prefix)) {
 
@@ -463,6 +477,12 @@ public:
                     endangle = std::stod(value);
                 } else if((iscircle || isarc) && key == 40) {
                     radius = std::stod(value)*scale;
+                } else if((iscircle || isarc || islwpoly) && key == 210) {
+                    extrudeX = std::stod(value);
+                } else if((iscircle || isarc || islwpoly) && key == 220) {
+                    extrudeY = std::stod(value);
+                } else if((iscircle || isarc || islwpoly) && key == 230) {
+                    extrudeZ = std::stod(value);
                 } else if(isinsert && key == 2) {
                     currtext = value;
                 } else if(islayer && key == 2) {
