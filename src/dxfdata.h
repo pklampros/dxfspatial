@@ -104,6 +104,8 @@ public:
 
         bool isblock = false;
         bool islwpoly = false;
+        bool iscircle = false;
+        bool isarc = false;
         bool isline = false;
         bool ismtext = false;
         bool ispoint = false;
@@ -113,6 +115,8 @@ public:
         bool isinsert = false;
         bool islayer = false;
 
+        int circleSides = 32;
+        double radius, startangle, endangle;
         std::vector<double> coordsX;
         std::vector<double> coordsY;
         std::string layer = defaultLayerName;
@@ -308,6 +312,69 @@ public:
                     layer = defaultLayerName;
                     colour = defaultColour;
                 }
+                if(isblock && iscircle) {
+                    if(stringutils::startsWith(layer, formattedLineLayerIdentifier)
+                           && stringutils::startsWith(blockname, prefix)) {
+                        std::string layername = layer.substr(formattedLineLayerIdentifier.length(), layer.length());
+                        std::string layertype = lineLayerIdentifier;
+                        std::string spacename = blockname.substr(prefix.length(), blockname.length());
+
+                        double angle = 2 * PI / circleSides;
+                        for(int i = 0; i < circleSides; i++) {
+                            std::vector<double> coords;
+                            coords.push_back(coordsX[0] + radius * cos(i * angle));
+                            coords.push_back(coordsY[0] + radius * sin(i * angle));
+                            coords.push_back(coordsX[0] + radius * cos((i + 1) * angle));
+                            coords.push_back(coordsY[0] + radius * sin((i + 1) * angle));
+                            lines.push_back(coords);
+                            lineLayer.push_back(layername);
+                            lineLayerType.push_back(layertype);
+                            lineBlock.push_back(spacename);
+                            lineBlockName.push_back(blockname);
+                            lineColour.push_back(colour);
+                        }
+                        coordsX.clear();
+                        coordsY.clear();
+                    }
+                    iscircle = false;
+                    layer = defaultLayerName;
+                    colour = defaultColour;
+                }
+
+                if(isblock && isarc) {
+                    if(stringutils::startsWith(layer, formattedLineLayerIdentifier)
+                           && stringutils::startsWith(blockname, prefix)) {
+                        std::string layername = layer.substr(formattedLineLayerIdentifier.length(), layer.length());
+                        std::string layertype = lineLayerIdentifier;
+                        std::string spacename = blockname.substr(prefix.length(), blockname.length());
+
+                        if (startangle > endangle) {
+                            endangle += 360;
+                        }
+                        int arcSides = (startangle == endangle) ? circleSides : (int(endangle - startangle) * circleSides / 360);
+                        startangle = 2 * PI * startangle / 360;
+                        endangle = 2 * PI * endangle / 360;
+                        double angle = (endangle - startangle) / arcSides;
+                        for(int i = 0; i < arcSides; i++) {
+                            std::vector<double> coords;
+                            coords.push_back(coordsX[0] + radius * cos(startangle + i * angle));
+                            coords.push_back(coordsY[0] + radius * sin(startangle + i * angle));
+                            coords.push_back(coordsX[0] + radius * cos(startangle + (i + 1) * angle));
+                            coords.push_back(coordsY[0] + radius * sin(startangle + (i + 1) * angle));
+                            lines.push_back(coords);
+                            lineLayer.push_back(layername);
+                            lineLayerType.push_back(layertype);
+                            lineBlock.push_back(spacename);
+                            lineBlockName.push_back(blockname);
+                            lineColour.push_back(colour);
+                        }
+                        coordsX.clear();
+                        coordsY.clear();
+                    }
+                    iscircle = false;
+                    layer = defaultLayerName;
+                    colour = defaultColour;
+                }
                 if(!isblock && isinsert && stringutils::startsWith(currtext, prefix)) {
 
                     std::vector<double> coords = {coordsX[0], coordsY[0]};
@@ -327,11 +394,19 @@ public:
                     isblock = false;
                     blockname = "";
                     blockcolour = "";
-                } else if(isblock && value == "LWPOLYLINE") {
+                } else if(isblock && (value == "LWPOLYLINE" || value == "SPLINE")) {
                     islwpoly = true;
                     coordsX.clear();
                     coordsY.clear();
                     polyclosed = false;
+                } else if(isblock && value == "CIRCLE") {
+                    iscircle = true;
+                    coordsX.clear();
+                    coordsY.clear();
+                } else if(isblock && value == "ARC") {
+                    isarc = true;
+                    coordsX.clear();
+                    coordsY.clear();
                 } else if(isblock && value == "POLYLINE") {
                     ispoly = true;
                     coordsX.clear();
@@ -362,7 +437,7 @@ public:
                 } else if(value == "LAYER") {
                     islayer = true;
                 }
-            } else if (islwpoly || ismtext || isline || ispoint || islayer || (!isblock && isinsert) || ispoly) {
+            } else if (islwpoly || ismtext || isline || ispoint || islayer || (!isblock && isinsert) || ispoly || iscircle || isarc) {
                 if((key == 10 || (isline && key == 11)) && !(ispoly && !isvertex)) {
                     // Polylines also have coordinates in the entity that starts the sequance (POLYLINE)
                     // which should not be counted among the coordinates (unless we are looking at a vertex)
@@ -382,6 +457,12 @@ public:
                     if(value == "1" || value == "129") polyclosed = true;
                 } else if(ismtext && key == 1) {
                     currtext = value;
+                } else if(isarc && key == 50) {
+                    startangle = std::stod(value);
+                } else if(isarc && key == 51) {
+                    endangle = std::stod(value);
+                } else if((iscircle || isarc) && key == 40) {
+                    radius = std::stod(value)*scale;
                 } else if(isinsert && key == 2) {
                     currtext = value;
                 } else if(islayer && key == 2) {
