@@ -25,3 +25,25 @@ The command to read a properly structured dxf is thus:
 dxf = processDXF(<filename>, <scale>, <prefix>)
 ```
 For example `dxf = processDXF("gallery_func.dxf", 0.001, "@_")` will load the dxf file called "gallery_func.dxf", will rescale all coordinates by multiplying them by 0.001 (i.e. if the plan is in millimeters and we need meters in R) and which is using the prefix "@_" for the layers and blocks.
+
+### Note on polygons
+The library loads polygons and tries to 'clean' them. This means that it will remove duplicates and if one is inside another then the former will be designated a hole of the latter (if they belong to the same layer and block).
+If this is not desired then the command might also be called in a way that will not clean the polygons:
+
+```{r}
+dxf = processDXF(<filename>, <scale>, <prefix>, cleanPolygons = FALSE)
+```
+with the cleaning made optionally later using the command `cleanPolygons`:
+```{r}
+# To clean up polygons if they belong in the same block AND layer
+dxf$polys = cleanPolygons(dxf$polys, c("block", "layer"))
+
+$ To clean up polygons if they belong in the same layer
+dxf$polys = cleanPolygons(dxf$polys, "layer")
+
+$ To clean up polygons if they belong in the same block
+dxf$polys = cleanPolygons(dxf$polys, "block")
+
+$ To clean up polygons if they have the same colour
+dxf$polys = cleanPolygons(dxf$polys, "colour")
+```
