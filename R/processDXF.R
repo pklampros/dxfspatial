@@ -19,12 +19,15 @@ library(sp);
 library(raster);
 library(maptools);
 
-processDXF = function(filepath, scale = 1, prefix) {
+processDXF = function(filepath, scale = 1, prefix, cleanPolygons = TRUE) {
   if (!file.exists(filepath)) stop("File not found");
   data = getDXFData(filepath, prefix, scale);
   dxfData = list();
   dxfData$lines = data$lines;
   dxfData$polys = data$polys;
+  if (nrow(dxfData$polys) > 0 & cleanPolygons) {
+    dxfData$polys = cleanPolygons(dxfData$polys, c("block", "layer"))
+  }
   dxfData$texts = data$texts;
   dxfData$texts@data$text = as.character(dxfData$texts@data$text);
   dxfData$points = data$points;
