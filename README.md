@@ -28,7 +28,7 @@ For example `dxf = processDXF("gallery_func.dxf", 0.001, "@_")` will load the dx
 
 ### Note on polygons
 The library loads polygons and tries to 'clean' them. This means that it will remove duplicates and if one is inside another then the former will be designated a hole of the latter (if they belong to the same layer and block).
-If this is not desired then the command might also be called in a way that will not clean the polygons:
+If this is not desired then the command might also be called adding "**cleanPolygons = FALSE**" that will not clean the polygons:
 
 ```{r}
 dxf = processDXF(<filename>, <scale>, <prefix>, cleanPolygons = FALSE)
