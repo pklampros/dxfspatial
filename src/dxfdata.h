@@ -120,7 +120,7 @@ public:
 
         // at the moment the way this is used is to flip the lwpolys, circles and arcs by multiplying
         // extrudeZ with them though there is certainly a better way.
-        double extrudeX, extrudeY, extrudeZ;
+        double extrudeX = 1, extrudeY = 1, extrudeZ = 1;
 
         std::vector<double> coordsX;
         std::vector<double> coordsY;
