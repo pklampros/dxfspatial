@@ -1,6 +1,7 @@
 Package: dxfspatial
 Type: Package
 Title: Extract spatial information from structured dxf files
+Date: 2020-01-25
 Version: 0.1.0
 Author: Petros Koutsolampros
 Maintainer: Petros Koutsolampros <dxfspatial@orange-vertex.net>
