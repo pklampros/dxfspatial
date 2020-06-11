@@ -21,7 +21,7 @@ cleanPolygons = function(polys, aggregateOn) {
         }), ID = polygons@ID);
     })
     polys = rgeos::gBuffer(polys, byid = TRUE, width = 0)
-    polys = raster::aggregate(polys, by = aggregateOn, dissolve = F)
+    polys = rasterAggregatePolygonGroups(polys, aggregateOn, dissolve = F)
     polys@polygons = lapply(polys@polygons, removePolygonDupes)
     polys@polygons = lapply(polys@polygons, function(polygons) {
         checkPolygonsHoles(polygons, properly = T, useSTRtree = T)
@@ -53,7 +53,7 @@ removePolygonDupes <- function(obj, properly=TRUE, force=TRUE) {
             Polygons(list(pls[[i]]), ID = i)))
         for (i in 1:(n - 1)) {
             res <- try(rgeos::gEquals(SP[i,], SP, byid = TRUE), silent = TRUE)
-            if (class(res) == "try-error") {
+            if ("try-error" %in% class(res)) {
                 warning("Polygons object ", IDs, ", Polygon ",
                         i, ": ", res)
                 next
@@ -99,4 +99,105 @@ removePolygonDupes <- function(obj, properly=TRUE, force=TRUE) {
     oobj <- Polygons(pls, ID = IDs)
     comment(oobj) <- rgeos::createPolygonsComment(oobj)
     oobj
+}
+
+rasterAggregatePolygons = function(x, dissolve = F) {
+    # this function comes from the raster package but modified to ignore the proj4string
+    if (dissolve) {
+        if (!requireNamespace("rgeos")) {
+            warning('Cannot dissolve because the rgeos package is not available')
+            dissolve <- FALSE
+        }
+        if (rgeos::version_GEOS() < "3.3.0") {
+            x <- rgeos::gUnionCascaded(x)
+        } else {
+            x <- rgeos::gUnaryUnion(x)
+        }
+    } else {
+        p <- list()
+        for (i in 1:length(x)) {
+            nsubobs <- length(x@polygons[[i]]@Polygons)
+            p <- c(p, lapply(1:nsubobs, function(j) x@polygons[[i]]@Polygons[[j]]))
+        }
+        x <- SpatialPolygons(list(Polygons(p, '1')))
+    }
+}
+
+rasterAggregatePolygonGroups = function(x, aggregateOn, dissolve = F) {
+    # this function comes from the raster package but modified to ignore the proj4string
+    if (dissolve) {
+        if (!requireNamespace("rgeos")) {
+            warning('Cannot dissolve because the rgeos package is not available')
+            dissolve <- FALSE
+        }
+    }
+    .getVars <- function(v, cn, nc) {
+        vl <- length(v)
+        v <- unique(v)
+        if (is.numeric(v)) {
+            v <- round(v)
+            v <- v[v>0 & v <= nc]
+            if (length(v) < 1) {
+                stop('invalid column numbers')
+            }
+        } else if (is.character(v)) {
+            v <- v[v %in% cn]
+            if (length(v) < 1) {
+                stop('invalid column names')
+            }
+        }
+        v
+    }
+    hd <- .hasSlot(x, 'data');
+    dat <- x@data
+    cn <- colnames(dat)
+    v <- .getVars(aggregateOn, cn)
+
+    dat <- dat[,v, drop=FALSE]
+    crs <- proj4string(x)
+    dc <- apply(dat, 1, function(y) paste(as.character(y), collapse='_'))
+    dc <- data.frame(oid=1:length(dc), v=as.integer(as.factor(dc)))
+    id <- dc[!duplicated(dc$v), , drop=FALSE]
+
+    if (nrow(id) == nrow(dat)) {
+        # nothing to aggregate
+        if (hd) {
+            x@data <- dat
+        } else {
+            x <- as(x, 'SpatialPolygons')
+        }
+        return(x)
+    }
+
+    id <- id[order(id$v), ]
+    dat <- dat[id[,1], ,drop=FALSE]
+
+
+    if (hd) {
+        x <- as(x, 'SpatialPolygons')
+    }
+
+    if (dissolve) {
+        if (rgeos::version_GEOS0() < "3.3.0") {
+            x <- lapply(1:nrow(id), function(y) spChFIDs(rgeos::gUnionCascaded(x[dc[dc$v==y,1],]), as.character(y)))
+        } else {
+
+            x <- lapply(1:nrow(id),
+                        function(y) {
+                            z <- x[dc[dc$v==y, 1], ]
+                            z <- try( rgeos::gUnaryUnion(z) )
+                            if (! inherits(z, "try-error")) {
+                                spChFIDs(z, as.character(y))
+                            }
+                        }
+            )
+        }
+    } else {
+        x <- lapply(1:nrow(id), function(y) spChFIDs(rasterAggregatePolygons(x[dc[dc$v==y,1],], dissolve=FALSE), as.character(y)))
+    }
+
+    x <- do.call(rbind, x)
+    crs(x) <- crs
+    rownames(dat) <- NULL
+    SpatialPolygonsDataFrame(x, dat, FALSE)
 }
