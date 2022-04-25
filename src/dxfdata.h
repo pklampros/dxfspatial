@@ -26,6 +26,7 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <math.h>
 
 class DXFData {
 
@@ -327,7 +328,7 @@ public:
                         std::string layertype = lineLayerIdentifier;
                         std::string spacename = blockname.substr(prefix.length(), blockname.length());
 
-                        double angle = 2 * PI / circleSides;
+                        double angle = 2 * M_PI / circleSides;
                         for(int i = 0; i < circleSides; i++) {
                             std::vector<double> coords;
                             coords.push_back(extrudeZ * (coordsX[0] + radius * cos(i * angle)));
@@ -364,8 +365,8 @@ public:
                         }
                         int arcSides = (startangle == endangle) ? circleSides : (int(endangle - startangle) * circleSides / 360);
                         if(arcSides == 0) arcSides = 1;
-                        startangle = 2 * PI * startangle / 360;
-                        endangle = 2 * PI * endangle / 360;
+                        startangle = 2 * M_PI * startangle / 360;
+                        endangle = 2 * M_PI * endangle / 360;
                         double angle = (endangle - startangle) / arcSides;
                         for(int i = 0; i < arcSides; i++) {
                             std::vector<double> coords;
